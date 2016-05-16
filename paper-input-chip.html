@@ -1,0 +1,70 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+
+<dom-module id="paper-input-chip">
+    <template>
+        <style>
+            :host {
+                display: inline-block;
+                cursor: default;
+            }
+
+            #chip {
+                @apply(--layout-horizontal);
+                @apply(--layout-center);
+
+                height: 32px;
+                background-color: #dfdfdf;
+                border-radius: 16px;
+            }
+
+            #label {
+                @apply(--paper-font-body1);
+                font-weight: 700;
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            #remove {
+                height: 24px;
+                width: 24px;
+                color: #757575;
+                margin: 4px 4px 4px -12px;
+                cursor: pointer;
+            }
+
+            #remove:hover {
+                color: #ffffff;
+            }
+
+
+        </style>
+        <div id="chip">
+            <div id="label">[[label]]</div>
+            <iron-icon id="remove" hidden$="[[!allowRemove]]" icon="cancel" on-tap="remove"></iron-icon>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+
+            is: 'paper-input-chip',
+
+            properties: {
+                label: String,
+                allowRemove: Boolean
+            },
+
+            remove: function (event) {
+                if (!this.allowRemove) {
+                    return;
+                }
+                this.fire('remove', this.label);
+                event.stopPropagation();
+            }
+
+        });
+    </script>
+</dom-module>

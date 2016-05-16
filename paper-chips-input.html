@@ -1,0 +1,176 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-item/paper-icon-item.html">
+<link rel="import" href="../iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="paper-input-chip.html">
+
+<dom-module id="paper-chips-input">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            paper-input {
+                min-width: 128px;
+                --paper-input-container-underline: {
+                    display: none;
+                };
+
+                --paper-input-container-underline-focus: {
+                    display: none;
+                };
+            }
+
+            paper-material {
+                background-color: white;
+            }
+
+            paper-input-chip {
+                padding: 4px;
+            }
+
+            iron-dropdown {
+                max-height: 256px;
+                min-width: 144px;
+            }
+        </style>
+
+        <template is="dom-repeat" items="[[selectedValues]]">
+            <paper-input-chip label="[[item]]" allow-remove on-remove="_removeChip"></paper-input-chip>
+        </template>
+
+        <div id="inputcontainer">
+            <paper-input label="add" focused="{{focused}}" value="{{input}}" on-keydown="_control"
+                         id="input"></paper-input>
+            <iron-dropdown vertical-align="top" no-overlap
+                           no-cancel-on-outside-click
+                           opened="[[focused]]"
+                           id="dropdown">
+                <paper-material elevation="3" class="dropdown-content">
+                    <paper-menu selected="{{_selected}}" selected-item="{{selectedItem}}" id="menu">
+                        <template is="dom-repeat" items="[[suggestions]]">
+                            <paper-item item$="[[item]]">[[item]]</paper-item>
+                        </template>
+
+
+                        <paper-icon-item disabled hidden$="[[_hasSuggestion(suggestions)]]">
+                            <iron-icon icon="info-outline" item-icon></iron-icon>
+                            No entry found
+                        </paper-icon-item>
+                    </paper-menu>
+
+                </paper-material>
+            </iron-dropdown>
+
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+
+            is: 'paper-chips-input',
+
+
+            properties: {
+                _selected: {
+                    type: Number,
+                    value: 0
+                },
+                input: {
+                    type: String,
+                    notify: true,
+                    value: ''
+                },
+                suggestions: {
+                    type: Array,
+                    computed: '_computeSuggestions(input, values.*, selectedValues.*)'
+                },
+                values: {
+                    type: Array,
+                    value: function () {
+                        return [];
+                    }
+                },
+                selectedValues: {
+                    type: Array,
+                    notify: true,
+                    value: function () {
+                        return []
+                    }
+                }
+            },
+
+            _control: function (event) {
+                if (event.keyCode === 40) {
+                    this.$.menu.selectNext();
+                    this.selectedItem.scrollIntoView();
+                    return;
+                }
+                if (event.keyCode === 38) {
+                    this.$.menu.selectPrevious();
+                    this.selectedItem.scrollIntoView();
+                    return;
+                }
+                if (event.keyCode === 13) {
+                    if (!this.suggestions || this.suggestions.length === 0) {
+                        return;
+                    }
+                    this.push('selectedValues', this.selectedItem.getAttribute('item'));
+                    this.$.dropdown.close();
+                    this.$.dropdown.open();
+                }
+                if (!this.input && event.keyCode === 8) {
+                    this.pop('selectedValues');
+                    this.$.dropdown.close();
+                    this.$.dropdown.open();
+                }
+
+                this.set('_selected', 0);
+            },
+
+            _computeSuggestions: function (input, valuesRecord, selectedValuesRecord) {
+                var values = valuesRecord.base;
+                var selectedValues = selectedValuesRecord.base;
+
+                values.sort();
+                if (selectedValues) {
+                    values = values.filter(function (s) {
+                        return selectedValues.indexOf(s) === -1;
+                    });
+                }
+                if (!input) {
+                    return values;
+                }
+
+                var startMatch = values.filter(function (s) {
+                    return s.toLowerCase().startsWith(input.toLowerCase())
+                });
+                var contains = values.filter(function (s) {
+                    return startMatch.indexOf(s) == -1;
+                }).filter(function (s) {
+                    return s.toLowerCase().indexOf(input.toLowerCase()) != -1;
+                });
+                return startMatch.concat(contains);
+            },
+            _removeChip: function (e) {
+                var pos = this.selectedValues.indexOf(e.detail);
+                if (pos === -1) {
+                    return;
+                }
+                this.splice('selectedValues', pos, 1);
+            },
+
+            _hasSuggestion: function(suggestions) {
+                return suggestions.length > 0;
+            }
+
+        });
+    </script>
+</dom-module>
