@@ -154,6 +154,7 @@
                 //this.push('selectedValues', JSON.parse(this.selectedItem.getAttribute('item')));
                 this.selectedItem = e.target;
                 this._addElement(false);
+                this.set('_selected', 0);
             },
 
             _computeSuggestions: function (input, valuesRecord, selectedValuesRecord) {
