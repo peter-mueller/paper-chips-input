@@ -28,6 +28,14 @@
                 };
             }
 
+            paper-item {
+                cursor: pointer;
+            }
+
+            paper-item:hover{
+                background-color: #dfdfdf;
+            }
+
             paper-material {
                 background-color: white;
             }
@@ -56,7 +64,7 @@
                 <paper-material elevation="3" class="dropdown-content">
                     <paper-menu selected="{{_selected}}" selected-item="{{selectedItem}}" id="menu">
                         <template is="dom-repeat" items="[[suggestions]]">
-                            <paper-item item$="[[item]]">[[item.label]]</paper-item>
+                            <paper-item item$="[[item]]" on-focus="_selectItem">[[item.label]]</paper-item>
                         </template>
 
 
@@ -122,11 +130,7 @@
                     if (!this.suggestions || this.suggestions.length === 0) {
                         return;
                     }
-                    this.push('selectedValues', JSON.parse(this.selectedItem.getAttribute('item')));
-
-                    this.$.dropdown.close();
-                    this.$.dropdown.open();
-                    this.set('input', '');
+                    this._addElement(true);
                 }
                 if (!this.input && event.keyCode === 8) {
                     this.pop('selectedValues');
@@ -137,6 +141,21 @@
                 this.set('_selected', 0);
             },
 
+            _addElement: function (reopen) {
+                this.push('selectedValues', JSON.parse(this.selectedItem.getAttribute('item')));
+                this.$.dropdown.close();
+                if (reopen) {
+                    this.$.dropdown.open();
+                }
+                this.set('input', '');
+            },
+
+            _selectItem: function (e) {
+                //this.push('selectedValues', JSON.parse(this.selectedItem.getAttribute('item')));
+                this.selectedItem = e.target;
+                this._addElement(false);
+            },
+
             _computeSuggestions: function (input, valuesRecord, selectedValuesRecord) {
                 var values = valuesRecord.base;
                 var selectedValues = selectedValuesRecord.base;
@@ -144,7 +163,9 @@
                 values.sort();
                 if (selectedValues) {
                     values = values.filter(function (o) {
-                        return selectedValues.map(function(o2) {return o2.id}).indexOf(o.id) === -1;
+                        return selectedValues.map(function (o2) {
+                                    return o2.id
+                                }).indexOf(o.id) === -1;
                     });
                 }
                 if (!input) {
@@ -162,14 +183,16 @@
                 return startMatch.concat(contains);
             },
             _removeChip: function (e) {
-                var pos = this.selectedValues.map(function(o) {return o.id}).indexOf(e.model.item.id);
+                var pos = this.selectedValues.map(function (o) {
+                    return o.id
+                }).indexOf(e.model.item.id);
                 if (pos === -1) {
                     return;
                 }
                 this.splice('selectedValues', pos, 1);
             },
 
-            _hasSuggestion: function(suggestions) {
+            _hasSuggestion: function (suggestions) {
                 return suggestions.length > 0;
             }
 
