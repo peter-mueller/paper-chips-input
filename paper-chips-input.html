@@ -6,6 +6,7 @@
 <link rel="import" href="../paper-item/paper-icon-item.html">
 <link rel="import" href="../iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="paper-input-chip.html">
@@ -17,23 +18,14 @@
                 display: block;
             }
 
-            paper-input {
-                min-width: 128px;
-                --paper-input-container-underline: {
-                    display: none;
-                };
-
-                --paper-input-container-underline-focus: {
-                    display: none;
-                };
-            }
-
             paper-material {
                 background-color: white;
             }
 
             paper-input-chip {
-                padding: 4px;
+                padding-right: 8px;
+                padding-bottom: 4px;
+                padding-top: 4px;
             }
 
             iron-dropdown {
@@ -42,33 +34,35 @@
             }
         </style>
 
-        <template is="dom-repeat" items="[[selectedValues]]">
-            <paper-input-chip label="[[item.label]]" allow-remove on-remove="_removeChip"></paper-input-chip>
-        </template>
+        <div class="layout horizontal wrap">
+            <template is="dom-repeat" items="[[selectedValues]]">
+                <paper-input-chip label="[[item.label]]" allow-remove on-remove="_removeChip"></paper-input-chip>
+            </template>
 
-        <div id="inputcontainer">
-            <paper-input label="add" focused="{{focused}}" value="{{input}}" on-keydown="_control"
-                         id="input"></paper-input>
-            <iron-dropdown vertical-align="top" no-overlap
-                           no-cancel-on-outside-click
-                           opened="[[focused]]"
-                           id="dropdown">
-                <paper-material elevation="3" class="dropdown-content">
-                    <paper-menu selected="{{_selected}}" selected-item="{{selectedItem}}" id="menu">
-                        <template is="dom-repeat" items="[[suggestions]]">
-                            <paper-item item$="[[item]]">[[item.label]]</paper-item>
-                        </template>
+            <div id="inputcontainer">
+                <paper-input label="[[label]]" focused="{{focused}}" value="{{input}}" on-keydown="_control"
+                             id="input"></paper-input>
+                <iron-dropdown vertical-align="top" no-overlap
+                               no-cancel-on-outside-click
+                               opened="[[focused]]"
+                               id="dropdown">
+                    <paper-material elevation="3" class="dropdown-content">
+                        <paper-menu selected="{{_selected}}" selected-item="{{selectedItem}}" id="menu">
+                            <template is="dom-repeat" items="[[suggestions]]">
+                                <paper-item item$="[[item]]">[[item.label]]</paper-item>
+                            </template>
 
 
-                        <paper-icon-item disabled hidden$="[[_hasSuggestion(suggestions)]]">
-                            <iron-icon icon="info-outline" item-icon></iron-icon>
-                            No entry found
-                        </paper-icon-item>
-                    </paper-menu>
+                            <paper-icon-item disabled hidden$="[[_hasSuggestion(suggestions)]]">
+                                <iron-icon icon="info-outline" item-icon></iron-icon>
+                                No entry found
+                            </paper-icon-item>
+                        </paper-menu>
 
-                </paper-material>
-            </iron-dropdown>
+                    </paper-material>
+                </iron-dropdown>
 
+            </div>
         </div>
     </template>
 
@@ -83,6 +77,7 @@
                     type: Number,
                     value: 0
                 },
+                label: String,
                 input: {
                     type: String,
                     notify: true,
@@ -144,7 +139,9 @@
                 values.sort();
                 if (selectedValues) {
                     values = values.filter(function (o) {
-                        return selectedValues.map(function(o2) {return o2.id}).indexOf(o.id) === -1;
+                        return selectedValues.map(function (o2) {
+                                    return o2.id
+                                }).indexOf(o.id) === -1;
                     });
                 }
                 if (!input) {
@@ -162,14 +159,16 @@
                 return startMatch.concat(contains);
             },
             _removeChip: function (e) {
-                var pos = this.selectedValues.map(function(o) {return o.id}).indexOf(e.model.item.id);
+                var pos = this.selectedValues.map(function (o) {
+                    return o.id
+                }).indexOf(e.model.item.id);
                 if (pos === -1) {
                     return;
                 }
                 this.splice('selectedValues', pos, 1);
             },
 
-            _hasSuggestion: function(suggestions) {
+            _hasSuggestion: function (suggestions) {
                 return suggestions.length > 0;
             }
 
