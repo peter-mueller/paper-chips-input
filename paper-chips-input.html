@@ -44,12 +44,16 @@
                              id="input"></paper-input>
                 <iron-dropdown vertical-align="top" no-overlap
                                no-cancel-on-outside-click
-                               opened="[[focused]]"
+
+                               on-mouseover="_onHover"
+                               on-mouseout="_onUnHover"
+
+                               opened="[[_opened(focused, _hovered)]]"
                                id="dropdown">
                     <paper-material elevation="3" class="dropdown-content">
                         <paper-menu selected="{{_selected}}" selected-item="{{selectedItem}}" id="menu">
                             <template is="dom-repeat" items="[[suggestions]]">
-                                <paper-item item$="[[item]]">[[item.label]]</paper-item>
+                                <paper-item item$="[[item]]" on-tap="_selectByClick">[[item.label]]</paper-item>
                             </template>
 
 
@@ -76,6 +80,10 @@
                 _selected: {
                     type: Number,
                     value: 0
+                },
+                _hovered: {
+                    type: Boolean,
+                    value: false
                 },
                 label: String,
                 input: {
@@ -114,14 +122,7 @@
                     return;
                 }
                 if (event.keyCode === 13) {
-                    if (!this.suggestions || this.suggestions.length === 0) {
-                        return;
-                    }
-                    this.push('selectedValues', JSON.parse(this.selectedItem.getAttribute('item')));
-
-                    this.$.dropdown.close();
-                    this.$.dropdown.open();
-                    this.set('input', '');
+                    this._addElement(true);
                 }
                 if (!this.input && event.keyCode === 8) {
                     this.pop('selectedValues');
@@ -168,8 +169,39 @@
                 this.splice('selectedValues', pos, 1);
             },
 
+            _addElement: function (reopen) {
+                if (!this.suggestions || this.suggestions.length === 0) {
+                    return;
+                }
+                this.push('selectedValues', JSON.parse(this.selectedItem.getAttribute('item')));
+                this.$.dropdown.close();
+                if (reopen) {
+                    this.$.dropdown.open();
+                }
+                this.set('input', '');
+            },
+
+
             _hasSuggestion: function (suggestions) {
                 return suggestions.length > 0;
+            },
+
+            _onHover: function (event) {
+                this._hovered = true;
+            },
+
+            _onUnHover: function (event) {
+                this._hovered = false;
+            },
+
+            _opened: function (focused, hover) {
+                return focused || hover;
+            },
+
+            _selectByClick: function (e) {
+                this.selectedItem = e.target;
+                this._addElement(false);
+                this._selected = 0;
             }
 
         });
