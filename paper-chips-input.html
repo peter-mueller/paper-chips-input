@@ -172,10 +172,9 @@
                 });
                 return startMatch.concat(contains);
             },
+
             _removeChip: function (e) {
-                var pos = this.selectedValues.map(function (o) {
-                    return o.id
-                }).indexOf(e.model.item.id);
+                var pos = this.selectedValues.indexOf(e.model.item);
                 if (pos === -1) {
                     return;
                 }
