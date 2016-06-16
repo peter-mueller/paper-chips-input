@@ -48,8 +48,13 @@
             </template>
 
             <div id="inputcontainer">
-                <paper-input label="[[label]]" focused="{{focused}}" value="{{input}}" on-keydown="_control"
-                             id="input"></paper-input>
+                <paper-input
+                        label="[[label]]"
+                        no-label-float="{{noLabelFloat}}"
+                        focused="{{focused}}"
+                        value="{{input}}"
+                        on-keydown="_control"
+                        id="input"></paper-input>
                 <iron-dropdown vertical-align="top" no-overlap
                                no-cancel-on-outside-click
 
@@ -92,6 +97,9 @@
                 _hovered: {
                     type: Boolean,
                     value: false
+                },
+                noLabelFloat: {
+                    type: Boolean
                 },
                 label: String,
                 input: {
